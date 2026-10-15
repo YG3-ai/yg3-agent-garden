@@ -2,7 +2,7 @@
 
 An open YG3 spatial environment server with an MCP sensorimotor interface and a Gym-compatible training boundary for embodied agents and world models.
 
-The current implementation is the transport and isolation spike described below. Read [`VISION.md`](VISION.md) for the product thesis and target architecture, [`RESEARCH.md`](RESEARCH.md) for the data opportunity, and [`AGENTS.md`](AGENTS.md) for implementation invariants.
+The current implementation includes the original transport and isolation spike, a causal YG3 operations world, a Gym-style training boundary, and an opt-in persistent Godot renderer connected through the same MCP tools. Read [`VISION.md`](VISION.md) for the product thesis and target architecture, [`RESEARCH.md`](RESEARCH.md) for the data opportunity, and [`AGENTS.md`](AGENTS.md) for implementation invariants.
 
 ## Current implementation
 
@@ -13,7 +13,7 @@ The repository now has two layers:
 
 The world asks an agent to capture an audience signal, operate the Writing Engine, discover a remote Publishing Rail failure, diagnose it, use a separate Reliability Relay to recover safely, rebuild the package, and publish it. Blind resets are rejected and recorded as failures. System state remains persistent across navigation and revisitation.
 
-It still uses a tiny deterministic CPU raycaster instead of Godot. The renderer is disposable; the episode, snapshot, observation, action, recording, and verification boundaries are the durable artifact.
+The tiny deterministic CPU raycaster remains the default for fast tests and transport benchmarks. A persistent Godot 4 worker now renders the same authoritative snapshots for the engine-backed path. The episode, snapshot, observation, action, recording, and verification boundaries remain renderer-independent.
 
 ## Run
 
@@ -67,8 +67,8 @@ The MCP server defaults to the disposable CPU renderer. Set `GARDEN_RENDERER=god
 
 ## What this does not prove
 
-- GPU rendering throughput
-- Godot process startup and reset cost
+- multi-worker GPU rendering throughput
+- engine-backed physics and collision authority
 - network latency outside loopback
 - model inference latency
 - whether a vision-language agent can solve the task
