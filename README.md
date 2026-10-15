@@ -55,6 +55,15 @@ The `observe` tool has a benchmark-only `transportPaddingKiB` argument. It inser
 
 The control plane can inspect deterministic verifier results, fork counterfactual episodes from an identical saved state, and retrieve privileged transition records containing action, outcome, exact state diff, and verifier output. None of that privileged state is added to the MCP observation.
 
+`src/control-godot.mjs` adds an asynchronous `GodotTrainingEnv`. Each reset and step returns synchronized:
+
+- first-person RGB PNG;
+- semantic-segmentation PNG with a stable class legend;
+- camera intrinsics and privileged extrinsics;
+- the normal reward, termination, and verifier result.
+
+These labels are available only through the privileged training boundary. They are never added to agent-facing MCP results.
+
 ## Godot observation adapter
 
 `engine/godot` contains the first asset-free Godot 4 scene and `src/godot.mjs` renders an authoritative Garden snapshot through it. Camera pose and visible station state come from the same versioned snapshot used by the verifier. Set `GODOT_BIN` when Godot is not installed in a standard macOS application or Downloads location.

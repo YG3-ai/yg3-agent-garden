@@ -101,6 +101,7 @@ func _set_capture_size(width: int, height: int) -> void:
 
 func _build_environment() -> void:
 	var world_environment := WorldEnvironment.new()
+	world_environment.name = "WorldEnvironment"
 	var environment := Environment.new()
 	environment.background_mode = Environment.BG_COLOR
 	environment.background_color = Color("161d30")
@@ -111,6 +112,7 @@ func _build_environment() -> void:
 	add_child(world_environment)
 
 	var key_light := DirectionalLight3D.new()
+	key_light.name = "KeyLight"
 	key_light.rotation_degrees = Vector3(-55.0, -35.0, 0.0)
 	key_light.light_energy = 1.1
 	key_light.shadow_enabled = true
@@ -180,6 +182,7 @@ func _build_camera() -> void:
 	camera.position = Vector3(camera_x, 0.72, camera_z)
 	camera.rotation = Vector3(0.0, -camera_yaw - PI / 2.0, 0.0)
 	camera.fov = 60.0
+	camera.keep_aspect = Camera3D.KEEP_HEIGHT
 	camera.near = 0.05
 	camera.current = true
 	add_child(camera)
@@ -262,13 +265,19 @@ func _handle_next_request() -> void:
 		_apply_state(request.get("state", {}))
 		_set_capture_size(int(request.get("width", 256)), int(request.get("height", 256)))
 		var image: Image = await _capture_image()
-		_send_worker_response({
+		var response := {
 			"id": request_id,
 			"ok": true,
 			"width": image.get_width(),
 			"height": image.get_height(),
 			"pngBase64": Marshalls.raw_to_base64(image.save_png_to_buffer()),
-		})
+		}
+		if bool(request.get("includeLabels", false)):
+			var segmentation: Image = await _capture_segmentation()
+			response["segmentationBase64"] = Marshalls.raw_to_base64(segmentation.save_png_to_buffer())
+			response["segmentationLegend"] = _segmentation_legend()
+			response["calibration"] = _camera_calibration()
+		_send_worker_response(response)
 	elif request_type == "ping":
 		_send_worker_response({"id": request_id, "ok": true, "type": "pong"})
 	elif request_type == "close":
@@ -284,3 +293,83 @@ func _send_worker_response(response: Dictionary) -> void:
 	if worker_peer == null:
 		return
 	worker_peer.put_data((JSON.stringify(response) + "\n").to_utf8_buffer())
+
+
+func _capture_segmentation() -> Image:
+	var world_environment := get_node("WorldEnvironment") as WorldEnvironment
+	var original_background := world_environment.environment.background_color
+	world_environment.environment.background_color = Color.BLACK
+	var saved_materials: Array[Dictionary] = []
+	var saved_lights: Array[Dictionary] = []
+	for child in get_children():
+		if child is MeshInstance3D:
+			var mesh := child as MeshInstance3D
+			var material := mesh.material_override as StandardMaterial3D
+			saved_materials.push_back({
+				"material": material,
+				"color": material.albedo_color,
+				"shading": material.shading_mode,
+			})
+			material.albedo_color = _segmentation_color(mesh.name)
+			material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		elif child is Light3D:
+			var light := child as Light3D
+			saved_lights.push_back({"light": light, "visible": light.visible})
+			light.visible = false
+	var image: Image = await _capture_image()
+	world_environment.environment.background_color = original_background
+	for saved in saved_materials:
+		var material := saved["material"] as StandardMaterial3D
+		material.albedo_color = saved["color"]
+		material.shading_mode = saved["shading"]
+	for saved in saved_lights:
+		var light := saved["light"] as Light3D
+		light.visible = saved["visible"]
+	return image
+
+
+func _segmentation_color(node_name: String) -> Color:
+	if node_name == "Floor":
+		return Color("ff0000")
+	if node_name.begins_with("Wall_"):
+		return Color("00ff00")
+	if node_name == "Station_A":
+		return Color("0000ff")
+	if node_name == "Station_B":
+		return Color("ffff00")
+	if node_name == "Station_C":
+		return Color("ff00ff")
+	if node_name == "Station_D":
+		return Color("00ffff")
+	return Color("ffffff")
+
+
+func _segmentation_legend() -> Dictionary:
+	return {
+		"000000": {"classId": 0, "name": "background"},
+		"ff0000": {"classId": 1, "name": "floor"},
+		"00ff00": {"classId": 2, "name": "wall"},
+		"0000ff": {"classId": 10, "name": "audience_signal_console"},
+		"ffff00": {"classId": 11, "name": "writing_engine_console"},
+		"ff00ff": {"classId": 12, "name": "publishing_rail_console"},
+		"00ffff": {"classId": 13, "name": "reliability_relay"},
+	}
+
+
+func _camera_calibration() -> Dictionary:
+	var focal := 0.5 * capture_height / tan(deg_to_rad(60.0) * 0.5)
+	return {
+		"intrinsics": {
+			"fx": focal,
+			"fy": focal,
+			"cx": capture_width * 0.5,
+			"cy": capture_height * 0.5,
+			"width": capture_width,
+			"height": capture_height,
+			"verticalFovDegrees": 60.0,
+		},
+		"extrinsics": {
+			"position": [camera_x, 0.72, camera_z],
+			"yawRadians": camera_yaw,
+		},
+	}

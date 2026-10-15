@@ -180,16 +180,26 @@ export class GodotWorker {
     })
   }
 
-  async render(snapshot, { width = 256, height = width } = {}) {
+  async render(snapshot, { width = 256, height = width, includeLabels = false } = {}) {
     if (snapshot?.schemaVersion !== 1 || snapshot?.worldId !== 'yg3-operations-recovery-v1') {
       throw new Error('Godot worker received an incompatible world snapshot')
     }
-    const response = await this.request('render', { state: snapshot.state, width, height })
-    return {
+    const response = await this.request('render', { state: snapshot.state, width, height, includeLabels })
+    const result = {
       png: Buffer.from(response.pngBase64, 'base64'),
       width: response.width,
       height: response.height,
     }
+    if (includeLabels) {
+      result.segmentationPng = Buffer.from(response.segmentationBase64, 'base64')
+      result.segmentationLegend = response.segmentationLegend
+      result.calibration = response.calibration
+    }
+    return result
+  }
+
+  renderTrainingFrame(snapshot, options) {
+    return this.render(snapshot, { ...options, includeLabels: true })
   }
 
   async close() {
