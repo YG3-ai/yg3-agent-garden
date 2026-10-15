@@ -12,7 +12,7 @@ The Garden is also a YG3 medium. YG3 must be present in the substantive content 
 
 ## Current state
 
-The repository begins with a transport and isolation spike:
+The repository contains a transport and isolation spike plus the engine-neutral core of its first causal vertical slice:
 
 - official MCP TypeScript SDK over Streamable HTTP;
 - deterministic stateful episodes;
@@ -20,9 +20,14 @@ The repository begins with a transport and isolation spike:
 - mapless movement, turning, interaction, and deterministic finish verification;
 - no agent-facing coordinates, global map, scene graph, or hidden simulator state;
 - image-payload and concurrent-episode benchmarks;
-- tests for deterministic rendering and privileged-state isolation.
+- a YG3 operations recovery world with connected systems, diagnosis, safe recovery, and multi-stage completion;
+- versioned authoritative snapshots and isolated counterfactual forks;
+- privileged transition traces with state diffs and verifier output;
+- `GardenEnv` and `VectorGardenEnv` Gym-style lifecycle classes;
+- an asset-free Godot 4 scene and persistent snapshot-to-RGB worker using a private loopback protocol;
+- tests for deterministic rendering, causal rules, snapshot isolation, vector lifecycle, and privileged-state isolation.
 
-This is not yet the production 3D Garden. Godot/OpenEnv/GEM integration is target-state work.
+This is not yet the production 3D Garden. MCP defaults to the disposable CPU raycaster but supports an opt-in persistent Godot renderer through `GARDEN_RENDERER=godot`. Server shutdown owns worker shutdown, and one failed render is retried with a fresh worker. Engine-owned physics, worker-pool supervision, synchronized training labels, and protocol-level OpenEnv/GEM integration remain target-state work.
 
 ## Product principle
 

@@ -1,4 +1,6 @@
 node_modules/
+.godot/
+engine/godot/.godot/
 .DS_Store
 .env
 .env.*

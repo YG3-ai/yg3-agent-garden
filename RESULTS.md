@@ -38,3 +38,23 @@ Proceed to the engine-backed vertical slice, retaining these gates:
 - repeat the benchmark with the real engine, GPU renderer, remote transport, and representative frame encoding before claiming production throughput.
 
 These numbers are a transport and isolation feasibility result, not an embodied-learning result. The next experiment must measure whether a vision-language agent improves on held-out spatial tasks after interacting with the garden.
+
+## Persistent Godot worker — 2026-10-15
+
+Godot 4.7.2 rendered 20 changing 256×256 observations through one persistent engine process. Each sample includes snapshot serialization, private loopback transport, a rendered frame, PNG encoding, base64 serialization, and Node.js decoding.
+
+| Engine startup | Frame payload | p50 frame | p95 frame | Mean throughput |
+|---:|---:|---:|---:|---:|
+| 1,995.56 ms | 5.2 KiB | 20.30 ms | 34.25 ms | 40.62 frames/sec |
+
+The persistent worker removes process startup from the observation loop. This is a single-worker, host-local RGB result using the asset-free prototype scene. It does not yet measure depth or segmentation passes, physics stepping, multiple engine workers, remote transport, or MCP end-to-end latency.
+
+### End-to-end MCP path
+
+The same persistent worker was then selected by the real Streamable HTTP MCP server. Twenty `turn` tool calls each updated authoritative state and returned a fresh 256×256 Godot PNG.
+
+| Cold `enter_world` | Frame payload | p50 action | p95 action | Mean throughput |
+|---:|---:|---:|---:|---:|
+| 3,865.18 ms | 6.3 KiB | 34.52 ms | 53.49 ms | 25.38 actions/sec |
+
+This confirms that the engine path survives the complete agent boundary without leaking privileged pose. Cold startup remains too expensive for per-episode processes, while steady-state latency is viable relative to vision-model inference. The next scaling test should supervise multiple persistent workers rather than spawning an engine for every episode.

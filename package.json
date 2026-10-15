@@ -1,11 +1,15 @@
 {
   "name": "@yg3/agent-garden",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "node src/server.mjs",
     "benchmark": "node src/benchmark.mjs",
+    "benchmark:godot": "node src/godot-benchmark.mjs",
+    "benchmark:godot-mcp": "node src/godot-mcp-benchmark.mjs",
+    "test:godot": "node src/godot-smoke.mjs",
+    "test:godot-mcp": "node src/godot-mcp-smoke.mjs",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {

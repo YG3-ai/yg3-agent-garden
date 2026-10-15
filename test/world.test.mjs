@@ -22,3 +22,11 @@ test('agent observations do not expose privileged coordinates', () => {
 test('invalid episodes fail closed', () => {
   assert.throws(() => garden.observe('00000000-0000-0000-0000-000000000000', 64, 64), /Unknown episode/)
 })
+
+test('public metadata exposes progress but not workflow or verifier state', () => {
+  const episode = garden.createEpisode(9)
+  const publicState = garden.observe(episode.id, 64, 64).publicState
+  assert.equal(publicState.workflow, undefined)
+  assert.equal(publicState.failures, undefined)
+  assert.equal(publicState.completedMilestones, 0)
+})

@@ -1,5 +1,6 @@
 import { McpServer, createMcpHandler } from '@modelcontextprotocol/server'
 import * as z from 'zod/v4'
+import { GardenRenderer } from './renderer.mjs'
 import { garden } from './world.mjs'
 
 function imageResult(observation, text) {
@@ -12,9 +13,9 @@ function imageResult(observation, text) {
   }
 }
 
-export function createGardenMcpServer() {
+export function createGardenMcpServer({ renderer = new GardenRenderer() } = {}) {
   const server = new McpServer(
-    { name: 'yg3-agent-garden', version: '0.0.1' },
+    { name: 'yg3-agent-garden', version: '0.1.0' },
     {
       capabilities: { tools: {} },
       instructions:
@@ -30,10 +31,10 @@ export function createGardenMcpServer() {
     },
     async ({ seed, imageWidth }) => {
       const episode = garden.createEpisode(seed)
-      const observation = garden.observe(episode.id, imageWidth, imageWidth)
+      const observation = await renderer.observe(episode.id, imageWidth, imageWidth)
       return imageResult(
         observation,
-        'Activate the Audience Signal, Writing Engine, and Publishing Rail consoles. You must discover them visually; no map or coordinates are provided.',
+        'Restore a YG3 delivery operation and publish its brief. Explore the space, inspect connected systems, diagnose failures before resetting them, and complete delivery. No map or coordinates are provided.',
       )
     },
   )
@@ -50,7 +51,7 @@ export function createGardenMcpServer() {
       }),
     },
     async ({ episodeId, width, height, transportPaddingKiB }) =>
-      imageResult(garden.observe(episodeId, width, height, transportPaddingKiB), 'First-person RGB observation.'),
+      imageResult(await renderer.observe(episodeId, width, height, transportPaddingKiB), 'First-person RGB observation.'),
   )
 
   server.registerTool(
@@ -66,7 +67,7 @@ export function createGardenMcpServer() {
     },
     async ({ episodeId, direction, distance, imageWidth }) => {
       const outcome = garden.move(episodeId, direction, distance)
-      return imageResult(garden.observe(episodeId, imageWidth, imageWidth), outcome.feedback)
+      return imageResult(await renderer.observe(episodeId, imageWidth, imageWidth), outcome.feedback)
     },
   )
 
@@ -82,7 +83,7 @@ export function createGardenMcpServer() {
     },
     async ({ episodeId, degrees, imageWidth }) => {
       garden.turn(episodeId, degrees)
-      return imageResult(garden.observe(episodeId, imageWidth, imageWidth), `Turned ${degrees} degrees.`)
+      return imageResult(await renderer.observe(episodeId, imageWidth, imageWidth), `Turned ${degrees} degrees.`)
     },
   )
 
@@ -94,7 +95,7 @@ export function createGardenMcpServer() {
     },
     async ({ episodeId, imageWidth }) => {
       const outcome = garden.interact(episodeId)
-      return imageResult(garden.observe(episodeId, imageWidth, imageWidth), outcome.feedback)
+      return imageResult(await renderer.observe(episodeId, imageWidth, imageWidth), outcome.feedback)
     },
   )
 
@@ -117,6 +118,6 @@ export function createGardenMcpServer() {
   return server
 }
 
-export function createGardenHandler() {
-  return createMcpHandler(createGardenMcpServer, { responseMode: 'json' })
+export function createGardenHandler({ renderer = new GardenRenderer() } = {}) {
+  return createMcpHandler(() => createGardenMcpServer({ renderer }), { responseMode: 'json' })
 }
