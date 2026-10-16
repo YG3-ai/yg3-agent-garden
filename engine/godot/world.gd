@@ -173,6 +173,15 @@ func _add_box(label: String, size: Vector3, position: Vector3, color: Color) -> 
 	material.roughness = 0.72
 	body.material_override = material
 	add_child(body)
+	var collider := StaticBody3D.new()
+	collider.name = "Collider_%s" % label
+	collider.position = position
+	var collision_shape := CollisionShape3D.new()
+	var box_shape := BoxShape3D.new()
+	box_shape.size = size
+	collision_shape.shape = box_shape
+	collider.add_child(collision_shape)
+	add_child(collider)
 	return body
 
 
@@ -184,6 +193,7 @@ func _build_camera() -> void:
 	camera.fov = 60.0
 	camera.keep_aspect = Camera3D.KEEP_HEIGHT
 	camera.near = 0.05
+	camera.far = 20.0
 	camera.current = true
 	add_child(camera)
 
@@ -274,9 +284,12 @@ func _handle_next_request() -> void:
 		}
 		if bool(request.get("includeLabels", false)):
 			var segmentation: Image = await _capture_segmentation()
+			var depth := await _capture_metric_depth()
 			response["segmentationBase64"] = Marshalls.raw_to_base64(segmentation.save_png_to_buffer())
 			response["segmentationLegend"] = _segmentation_legend()
 			response["calibration"] = _camera_calibration()
+			response["depthRgba8Base64"] = depth["base64"]
+			response["depthMetadata"] = depth["metadata"]
 		_send_worker_response(response)
 	elif request_type == "ping":
 		_send_worker_response({"id": request_id, "ok": true, "type": "pong"})
@@ -371,5 +384,82 @@ func _camera_calibration() -> Dictionary:
 		"extrinsics": {
 			"position": [camera_x, 0.72, camera_z],
 			"yawRadians": camera_yaw,
+		},
+	}
+
+
+func _capture_metric_depth() -> Dictionary:
+	var world_environment := get_node("WorldEnvironment") as WorldEnvironment
+	var original_background := world_environment.environment.background_color
+	world_environment.environment.background_color = Color.BLACK
+	var saved_materials: Array[Dictionary] = []
+	var saved_lights: Array[Dictionary] = []
+	var depth_shader := Shader.new()
+	depth_shader.code = """
+shader_type spatial;
+render_mode unshaded, fog_disabled;
+uniform float far_distance = 20.0;
+uniform vec3 camera_position_world;
+uniform vec3 camera_forward_world;
+varying vec3 world_position;
+
+vec3 pack_depth(float value) {
+	vec3 encoded = fract(value * vec3(1.0, 255.0, 65025.0));
+	encoded -= encoded.yzz * vec3(1.0 / 255.0, 1.0 / 255.0, 0.0);
+	return encoded;
+}
+
+vec3 linear_to_srgb(vec3 value) {
+	bvec3 cutoff = lessThanEqual(value, vec3(0.0031308));
+	vec3 lower = value * 12.92;
+	vec3 higher = 1.055 * pow(value, vec3(1.0 / 2.4)) - 0.055;
+	return mix(higher, lower, cutoff);
+}
+
+void vertex() {
+	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+}
+
+void fragment() {
+	float camera_depth = dot(world_position - camera_position_world, camera_forward_world);
+	float normalized_depth = clamp(camera_depth / far_distance, 0.0, 0.999999);
+	ALBEDO = linear_to_srgb(pack_depth(normalized_depth));
+}
+"""
+	var depth_material := ShaderMaterial.new()
+	depth_material.shader = depth_shader
+	depth_material.set_shader_parameter("far_distance", 20.0)
+	var camera := get_node("AgentCamera") as Camera3D
+	depth_material.set_shader_parameter("camera_position_world", camera.global_position)
+	depth_material.set_shader_parameter("camera_forward_world", -camera.global_transform.basis.z.normalized())
+	for child in get_children():
+		if child is MeshInstance3D:
+			var mesh := child as MeshInstance3D
+			saved_materials.push_back({"mesh": mesh, "material": mesh.material_override})
+			mesh.material_override = depth_material
+		elif child is Light3D:
+			var light := child as Light3D
+			saved_lights.push_back({"light": light, "visible": light.visible})
+			light.visible = false
+	var image: Image = await _capture_image()
+	world_environment.environment.background_color = original_background
+	for saved in saved_materials:
+		var mesh := saved["mesh"] as MeshInstance3D
+		mesh.material_override = saved["material"]
+	for saved in saved_lights:
+		var light := saved["light"] as Light3D
+		light.visible = saved["visible"]
+	return {
+		"base64": Marshalls.raw_to_base64(image.get_data()),
+		"metadata": {
+			"format": "float32_le",
+			"width": capture_width,
+			"height": capture_height,
+			"unit": "meter",
+			"convention": "camera_z",
+			"invalidValue": 0.0,
+			"near": 0.05,
+			"far": 20.0,
+			"sourceEncoding": "srgb_rgb24_normalized_depth_in_rgba8",
 		},
 	}

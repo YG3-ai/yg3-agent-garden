@@ -25,10 +25,10 @@ The repository contains a transport and isolation spike plus the engine-neutral 
 - privileged transition traces with state diffs and verifier output;
 - `GardenEnv` and `VectorGardenEnv` Gym-style lifecycle classes;
 - an asset-free Godot 4 scene and persistent snapshot-to-RGB worker using a private loopback protocol;
-- synchronized semantic-segmentation frames and camera calibration through the privileged `GodotTrainingEnv` boundary;
+- synchronized metric depth, semantic-segmentation frames, and camera calibration through the privileged `GodotTrainingEnv` boundary;
 - tests for deterministic rendering, causal rules, snapshot isolation, vector lifecycle, and privileged-state isolation.
 
-This is not yet the production 3D Garden. MCP defaults to the disposable CPU raycaster but supports an opt-in persistent Godot renderer through `GARDEN_RENDERER=godot`. Server shutdown owns worker shutdown, and one failed render is retried with a fresh worker. RGB, semantic segmentation, and camera calibration are synchronized; depth, normals, optical flow, engine-owned physics, worker-pool supervision, and protocol-level OpenEnv/GEM integration remain target-state work.
+This is not yet the production 3D Garden. MCP defaults to the disposable CPU raycaster but supports an opt-in persistent Godot renderer through `GARDEN_RENDERER=godot`. Server shutdown owns worker shutdown, and one failed render is retried with a fresh worker. RGB, metric camera-space depth, semantic segmentation, and camera calibration are synchronized. Static Godot colliders now mirror visible geometry, but authoritative movement still uses the engine-neutral world rules; normals, optical flow, engine-owned physics, worker-pool supervision, and protocol-level OpenEnv/GEM integration remain target-state work.
 
 ## Product principle
 

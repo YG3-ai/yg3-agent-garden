@@ -59,6 +59,7 @@ The control plane can inspect deterministic verifier results, fork counterfactua
 
 - first-person RGB PNG;
 - semantic-segmentation PNG with a stable class legend;
+- metric camera-space depth as a packed `Float32LE` buffer, with unit and range metadata;
 - camera intrinsics and privileged extrinsics;
 - the normal reward, termination, and verifier result.
 
@@ -82,6 +83,6 @@ The MCP server defaults to the disposable CPU renderer. Set `GARDEN_RENDERER=god
 - model inference latency
 - whether a vision-language agent can solve the task
 - protocol-level GEM/OpenEnv package integration
-- depth, segmentation, or other synchronized engine render passes
+- normals, optical flow, and other synchronized engine render passes
 
 Those are the next layer after the world and lifecycle contract is connected to the real engine.

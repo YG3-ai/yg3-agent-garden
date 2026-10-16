@@ -21,5 +21,12 @@ assert.equal(trainingFrame.segmentationPng.subarray(1, 4).toString('ascii'), 'PN
 assert.notDeepEqual(trainingFrame.segmentationPng, trainingFrame.png)
 assert.equal(trainingFrame.calibration.intrinsics.width, 128)
 assert.equal(trainingFrame.segmentationLegend.ff00ff.name, 'publishing_rail_console')
+assert.equal(trainingFrame.depthFloat32.length, 128 * 96 * 4)
+assert.equal(trainingFrame.depthMetadata.convention, 'camera_z')
+const centerDepth = trainingFrame.depthFloat32.readFloatLE((48 * 128 + 64) * 4)
+assert.ok(
+  centerDepth > 0.5 && centerDepth < 0.8,
+  `expected center depth between 0.5m and 0.8m, received ${centerDepth}`,
+)
 await worker.close()
-console.log(JSON.stringify({ godot: binary, imageBytes: result.png.length, width: 128, height: 96, persistentRenders: 3, trainingLabels: ['segmentation', 'calibration'] }))
+console.log(JSON.stringify({ godot: binary, imageBytes: result.png.length, width: 128, height: 96, persistentRenders: 3, trainingLabels: ['segmentation', 'depth', 'calibration'], centerDepthMeters: Number(centerDepth.toFixed(3)) }))

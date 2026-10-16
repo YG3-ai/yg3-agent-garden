@@ -42,6 +42,28 @@ export async function findGodot() {
   return firstExecutable([process.env.GODOT_BIN, ...DEFAULT_CANDIDATES].filter(Boolean))
 }
 
+function decodeMetricDepth(rgba, metadata) {
+  const srgbToLinear = byte => {
+    const value = byte / 255
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
+  }
+  const pixels = metadata.width * metadata.height
+  if (rgba.length !== pixels * 4) throw new Error('Godot depth pass returned an unexpected byte length')
+  const depth = Buffer.allocUnsafe(pixels * 4)
+  for (let index = 0; index < pixels; index += 1) {
+    const offset = index * 4
+    const red = srgbToLinear(rgba[offset])
+    const green = srgbToLinear(rgba[offset + 1])
+    const blue = srgbToLinear(rgba[offset + 2])
+    const normalized = red + green / 255 + blue / 65025
+    const meters = rgba[offset] === 0 && rgba[offset + 1] === 0 && rgba[offset + 2] === 0
+      ? metadata.invalidValue
+      : normalized * metadata.far
+    depth.writeFloatLE(meters, offset)
+  }
+  return depth
+}
+
 export async function renderGodotSnapshot(snapshot, { width = 256, height = width } = {}) {
   if (snapshot?.schemaVersion !== 1 || snapshot?.worldId !== 'yg3-operations-recovery-v1') {
     throw new Error('Godot renderer received an incompatible world snapshot')
@@ -194,6 +216,8 @@ export class GodotWorker {
       result.segmentationPng = Buffer.from(response.segmentationBase64, 'base64')
       result.segmentationLegend = response.segmentationLegend
       result.calibration = response.calibration
+      result.depthMetadata = response.depthMetadata
+      result.depthFloat32 = decodeMetricDepth(Buffer.from(response.depthRgba8Base64, 'base64'), result.depthMetadata)
     }
     return result
   }

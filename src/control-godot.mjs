@@ -28,6 +28,8 @@ export class GodotTrainingEnv {
         segmentationPng: frame.segmentationPng,
         segmentationLegend: frame.segmentationLegend,
         calibration: frame.calibration,
+        depthFloat32: frame.depthFloat32,
+        depthMetadata: frame.depthMetadata,
       },
     }
   }
