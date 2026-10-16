@@ -81,7 +81,7 @@ Validate MCP image transport, episode isolation, deterministic reset, privileged
 
 Replace the raycaster with one small authored 3D world. Preserve the MCP contract. Add authoritative snapshots, depth and segmentation capture, a Gym-style control plane, trajectory recording, and one held-out evaluation task family.
 
-The engine-neutral portion now exists: the first causal world, snapshots and counterfactual forks, privileged transition recording, deterministic verification, and scalar/vector Gym-style lifecycle. An opt-in persistent Godot worker renders deterministic RGB directly from authoritative snapshots through the same MCP tools. The privileged Godot training boundary also returns synchronized metric camera-space depth, semantic segmentation, and camera calibration. Static engine colliders mirror the rendered geometry, while engine-owned movement, worker pools, motion labels, and held-out variants remain.
+The engine-neutral portion now exists: the first causal world, snapshots and counterfactual forks, privileged transition recording, deterministic verification, and scalar/vector Gym-style lifecycle. An opt-in persistent Godot worker renders deterministic RGB directly from authoritative snapshots through the same MCP tools. The privileged Godot training boundary also returns synchronized metric camera-space depth, semantic segmentation, and camera calibration. Godot resolves embodied capsule movement against static visible geometry and returns the result to the authoritative transition recorder. Dynamic objects, worker pools, motion labels, and held-out variants remain.
 
 ### Stage 2 — learning evidence
 

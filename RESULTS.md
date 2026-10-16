@@ -64,3 +64,9 @@ This confirms that the engine path survives the complete agent boundary without 
 The privileged Godot training boundary now captures RGB, semantic segmentation, camera calibration, and metric camera-space depth from the same authoritative snapshot. The GPU depth pass packs normalized camera-z into an sRGB-safe 24-bit color representation; the Node adapter decodes it to a row-major `Float32LE` meter buffer before returning the training frame.
 
 A fixed-pose geometry check places the camera 0.64 m from the front surface of a station. The decoded center pixel measured 0.627 m at 128×96, inside the asserted 0.5–0.8 m tolerance. This validates the label convention and transport path, but it is not yet a full per-pixel ground-truth accuracy study or a throughput benchmark for multi-pass collection.
+
+## Engine-owned movement collision — 2026-10-16
+
+The persistent Godot worker now resolves forward and backward movement with a `CharacterBody3D` capsule against static colliders matching the rendered floor, walls, and stations. The authoritative Garden state does not predict the Godot result: it validates and records the engine-returned pose, distance, and collision in the standard state diff and verifier trace. The same path is used by the Godot-backed MCP server and `GodotTrainingEnv`.
+
+In the fixed geometry check, a 1 m forward command begins at x=8.5 facing a station whose near face is x=9.14. With an agent radius of 0.22 m, Godot stopped the center at x=8.918 and reported a collision. A separate unobstructed 0.5 m command completed within 0.01 m of its expected endpoint. This establishes static engine collision ownership; it does not yet cover dynamic bodies, articulated objects, pushing, or continuous locomotion.

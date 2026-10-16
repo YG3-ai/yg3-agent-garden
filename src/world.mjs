@@ -65,7 +65,7 @@ function makeSession(seed = 0, restoredState) {
         id: randomUUID(),
         worldId: WORLD_ID,
         seed,
-        x: 6.5,
+        x: 7.5,
         z: 9.5,
         yaw: seededAngle(seed),
         step: 0,
@@ -200,9 +200,39 @@ function addFailure(session, kind) {
   session.workflow.failures.push({ kind, step: session.step })
 }
 
-function moveAction(session, direction, distance) {
+function moveAction(session, direction, distance, resolution) {
   const heading = direction === 'backward' ? session.yaw + Math.PI : session.yaw
   const amount = Math.min(1, Math.max(0.05, distance))
+  if (resolution) {
+    const values = [resolution.x, resolution.z, resolution.travelled]
+    const deltaX = resolution.x - session.x
+    const deltaZ = resolution.z - session.z
+    const displacement = Math.hypot(deltaX, deltaZ)
+    const alongHeading = deltaX * Math.cos(heading) + deltaZ * Math.sin(heading)
+    const crossHeading = Math.abs(deltaX * Math.sin(heading) - deltaZ * Math.cos(heading))
+    if (
+      !values.every(Number.isFinite)
+      || resolution.travelled < 0
+      || resolution.travelled > amount + 0.01
+      || Math.abs(displacement - resolution.travelled) > 0.01
+      || alongHeading < -0.001
+      || crossHeading > 0.01
+    ) {
+      throw new Error('Invalid privileged movement resolution')
+    }
+    session.x = resolution.x
+    session.z = resolution.z
+    if (resolution.collided) session.collisions += 1
+    const moved = resolution.travelled > 0.0001
+    return {
+      moved,
+      collided: Boolean(resolution.collided),
+      travelled: resolution.travelled,
+      feedback: resolution.collided
+        ? moved ? 'Movement stopped at an obstacle.' : 'Movement was blocked by an obstacle.'
+        : 'Movement completed.',
+    }
+  }
   const nextX = session.x + Math.cos(heading) * amount
   const nextZ = session.z + Math.sin(heading) * amount
   if (isBlocked(nextX, nextZ)) {
@@ -286,11 +316,11 @@ function verify(session) {
   }
 }
 
-function perform(session, action) {
+function perform(session, action, movementResolution) {
   const before = comparableState(session)
   session.step += 1
   let outcome
-  if (action.type === 'move') outcome = moveAction(session, action.direction, action.distance)
+  if (action.type === 'move') outcome = moveAction(session, action.direction, action.distance, movementResolution)
   else if (action.type === 'turn') outcome = turnAction(session, action.degrees)
   else if (action.type === 'interact') outcome = interactAction(session)
   else if (action.type === 'finish') outcome = { ...verify(session), feedback: session.workflow.published ? 'Task completed.' : 'Task incomplete.' }
@@ -329,6 +359,9 @@ export const garden = {
   },
   move(id, direction, distance) {
     return perform(requireSession(id), { type: 'move', direction, distance }).outcome
+  },
+  moveResolved(id, direction, distance, resolution) {
+    return perform(requireSession(id), { type: 'move', direction, distance }, resolution).outcome
   },
   turn(id, degrees) {
     return perform(requireSession(id), { type: 'turn', degrees }).outcome

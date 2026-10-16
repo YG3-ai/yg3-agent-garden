@@ -39,7 +39,10 @@ export class GodotTrainingEnv {
   }
 
   async step(action) {
-    return this.#replaceObservation(this.environment.step(action))
+    const movementResolution = action.type === 'move'
+      ? await this.worker.resolveMovement(this.environment.snapshot(), action)
+      : undefined
+    return this.#replaceObservation(this.environment.step(action, { movementResolution }))
   }
 
   snapshot() {

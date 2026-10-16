@@ -13,15 +13,10 @@ export class GardenRenderer {
     return this.workerPromise
   }
 
-  async observe(episodeId, width, height, transportPaddingKiB = 0) {
-    if (this.mode === 'cpu' || transportPaddingKiB > 0) {
-      return garden.observe(episodeId, width, height, transportPaddingKiB)
-    }
-    const snapshot = garden.snapshot(episodeId)
+  async #withWorker(operation) {
     const worker = await this.#worker()
     try {
-      const rendered = await worker.render(snapshot, { width, height })
-      return { png: rendered.png, publicState: garden.metadata(episodeId) }
+      return await operation(worker)
     } catch (firstError) {
       this.workerPromise = undefined
       try {
@@ -30,13 +25,28 @@ export class GardenRenderer {
         // A failed worker may already be gone.
       }
       try {
-        const rendered = await (await this.#worker()).render(snapshot, { width, height })
-        return { png: rendered.png, publicState: garden.metadata(episodeId) }
+        return await operation(await this.#worker())
       } catch (retryError) {
         retryError.cause = firstError
         throw retryError
       }
     }
+  }
+
+  async observe(episodeId, width, height, transportPaddingKiB = 0) {
+    if (this.mode === 'cpu' || transportPaddingKiB > 0) {
+      return garden.observe(episodeId, width, height, transportPaddingKiB)
+    }
+    const snapshot = garden.snapshot(episodeId)
+    const rendered = await this.#withWorker(worker => worker.render(snapshot, { width, height }))
+    return { png: rendered.png, publicState: garden.metadata(episodeId) }
+  }
+
+  async move(episodeId, direction, distance) {
+    if (this.mode === 'cpu') return garden.move(episodeId, direction, distance)
+    const snapshot = garden.snapshot(episodeId)
+    const resolution = await this.#withWorker(worker => worker.resolveMovement(snapshot, { direction, distance }))
+    return garden.moveResolved(episodeId, direction, distance, resolution)
   }
 
   async close() {

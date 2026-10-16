@@ -226,6 +226,20 @@ export class GodotWorker {
     return this.render(snapshot, { ...options, includeLabels: true })
   }
 
+  async resolveMovement(snapshot, { direction, distance }) {
+    if (snapshot?.schemaVersion !== 1 || snapshot?.worldId !== 'yg3-operations-recovery-v1') {
+      throw new Error('Godot worker received an incompatible world snapshot')
+    }
+    if (!['forward', 'backward'].includes(direction)) throw new Error('Godot movement direction is invalid')
+    const response = await this.request('move', { state: snapshot.state, direction, distance })
+    return {
+      x: response.x,
+      z: response.z,
+      travelled: response.travelled,
+      collided: response.collided,
+    }
+  }
+
   async close() {
     if (this.child.exitCode !== null) return
     try {

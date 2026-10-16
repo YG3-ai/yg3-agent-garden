@@ -42,6 +42,22 @@ test('snapshots fork identical state into isolated counterfactual episodes', () 
   assert.notDeepEqual(garden.snapshot(left.id).state, garden.snapshot(right.id).state)
 })
 
+test('privileged physics resolutions remain recorded behind the control boundary', () => {
+  const episode = garden.createEpisode(12)
+  const before = garden.snapshot(episode.id).state
+  const outcome = garden.moveResolved(episode.id, 'forward', 1, {
+    x: before.x + Math.cos(before.yaw) * 0.3,
+    z: before.z + Math.sin(before.yaw) * 0.3,
+    travelled: 0.3,
+    collided: true,
+  })
+  assert.equal(outcome.collided, true)
+  assert.equal(garden.verify(episode.id).collisions, 1)
+  const [transition] = garden.trajectory(episode.id)
+  assert.ok(transition.stateDiff.some(change => change.path === 'pose.x'))
+  assert.ok(transition.stateDiff.some(change => change.path === 'collisions'))
+})
+
 test('trajectory records privileged state diffs without adding them to observations', () => {
   const environment = new GardenEnv({ width: 64 })
   const reset = environment.reset({ seed: 5 })

@@ -66,7 +66,7 @@ export function createGardenMcpServer({ renderer = new GardenRenderer() } = {}) 
       }),
     },
     async ({ episodeId, direction, distance, imageWidth }) => {
-      const outcome = garden.move(episodeId, direction, distance)
+      const outcome = await renderer.move(episodeId, direction, distance)
       return imageResult(await renderer.observe(episodeId, imageWidth, imageWidth), outcome.feedback)
     },
   )

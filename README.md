@@ -13,7 +13,7 @@ The repository now has two layers:
 
 The world asks an agent to capture an audience signal, operate the Writing Engine, discover a remote Publishing Rail failure, diagnose it, use a separate Reliability Relay to recover safely, rebuild the package, and publish it. Blind resets are rejected and recorded as failures. System state remains persistent across navigation and revisitation.
 
-The tiny deterministic CPU raycaster remains the default for fast tests and transport benchmarks. A persistent Godot 4 worker now renders the same authoritative snapshots for the engine-backed path. The episode, snapshot, observation, action, recording, and verification boundaries remain renderer-independent.
+The tiny deterministic CPU raycaster remains the default for fast tests and transport benchmarks. A persistent Godot 4 worker renders the same authoritative snapshots for the engine-backed path and resolves movement against an embodied capsule and static scene colliders. The resulting pose and collision are committed to the normal transition record before the next observation. The episode, snapshot, observation, action, recording, and verification boundaries remain renderer-independent.
 
 ## Run
 
@@ -71,6 +71,8 @@ These labels are available only through the privileged training boundary. They a
 
 `GodotWorker` keeps one engine process alive and exchanges versioned JSON messages over a private loopback TCP connection. `npm run test:godot` verifies two deterministic renders in the same process. `npm run benchmark:godot` measures engine startup separately from steady-state snapshot-to-PNG latency.
 
+In Godot mode, `move` is resolved by the engine's `CharacterBody3D` against colliders that mirror the visible floor, walls, and stations. The public MCP response says whether movement completed or met an obstacle, but does not expose the resolved pose. CPU mode retains the deterministic map collision model for lightweight tests.
+
 Godot's `--headless` mode disables rendering, so these commands require a working display/GPU context. The worker is private engine infrastructure, not an additional agent-facing MCP surface.
 
 The MCP server defaults to the disposable CPU renderer. Set `GARDEN_RENDERER=godot` to use one lazily started persistent worker for live observations. The server owns worker shutdown, retries once with a fresh worker after a render failure, and preserves the same mapless public observation metadata in either mode.
@@ -78,7 +80,7 @@ The MCP server defaults to the disposable CPU renderer. Set `GARDEN_RENDERER=god
 ## What this does not prove
 
 - multi-worker GPU rendering throughput
-- engine-backed physics and collision authority
+- dynamic rigid-body simulation and object manipulation
 - network latency outside loopback
 - model inference latency
 - whether a vision-language agent can solve the task

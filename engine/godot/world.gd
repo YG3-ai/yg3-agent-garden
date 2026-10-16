@@ -23,7 +23,7 @@ const STATION_COLORS := {
 }
 
 var output_path := ""
-var camera_x := 6.5
+var camera_x := 7.5
 var camera_z := 9.5
 var camera_yaw := 0.0
 var capture_width := 256
@@ -45,6 +45,7 @@ func _ready() -> void:
 	_read_arguments()
 	_build_environment()
 	_build_world()
+	_build_agent_body()
 	_build_camera()
 	if worker_port >= 0:
 		_start_worker()
@@ -198,6 +199,21 @@ func _build_camera() -> void:
 	add_child(camera)
 
 
+func _build_agent_body() -> void:
+	var body := CharacterBody3D.new()
+	body.name = "AgentBody"
+	body.position = Vector3(camera_x, 0.72, camera_z)
+	body.collision_layer = 2
+	body.collision_mask = 1
+	var collision_shape := CollisionShape3D.new()
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.22
+	capsule.height = 1.4
+	collision_shape.shape = capsule
+	body.add_child(collision_shape)
+	add_child(body)
+
+
 func _apply_state(state: Dictionary) -> void:
 	camera_x = float(state.get("x", camera_x))
 	camera_z = float(state.get("z", camera_z))
@@ -211,6 +227,8 @@ func _apply_state(state: Dictionary) -> void:
 	var camera := get_node("AgentCamera") as Camera3D
 	camera.position = Vector3(camera_x, 0.72, camera_z)
 	camera.rotation = Vector3(0.0, -camera_yaw - PI / 2.0, 0.0)
+	var agent_body := get_node("AgentBody") as CharacterBody3D
+	agent_body.position = Vector3(camera_x, 0.72, camera_z)
 	for station_id in STATION_COLORS.keys():
 		var color := _station_color(station_id)
 		var station := get_node("Station_%s" % station_id) as MeshInstance3D
@@ -291,6 +309,15 @@ func _handle_next_request() -> void:
 			response["depthRgba8Base64"] = depth["base64"]
 			response["depthMetadata"] = depth["metadata"]
 		_send_worker_response(response)
+	elif request_type == "move":
+		_apply_state(request.get("state", {}))
+		var movement := await _resolve_movement(
+			str(request.get("direction", "forward")),
+			float(request.get("distance", 0.5)),
+		)
+		movement["id"] = request_id
+		movement["ok"] = true
+		_send_worker_response(movement)
 	elif request_type == "ping":
 		_send_worker_response({"id": request_id, "ok": true, "type": "pong"})
 	elif request_type == "close":
@@ -300,6 +327,23 @@ func _handle_next_request() -> void:
 	else:
 		_send_worker_response({"id": request_id, "ok": false, "error": "unknown_request"})
 	worker_busy = false
+
+
+func _resolve_movement(direction: String, distance: float) -> Dictionary:
+	await get_tree().physics_frame
+	var body := get_node("AgentBody") as CharacterBody3D
+	var heading := camera_yaw + (PI if direction == "backward" else 0.0)
+	var amount := clampf(distance, 0.05, 1.0)
+	var motion := Vector3(cos(heading) * amount, 0.0, sin(heading) * amount)
+	var before := body.position
+	var collision := body.move_and_collide(motion)
+	var travelled := Vector2(body.position.x - before.x, body.position.z - before.z).length()
+	return {
+		"x": body.position.x,
+		"z": body.position.z,
+		"travelled": travelled,
+		"collided": collision != null,
+	}
 
 
 func _send_worker_response(response: Dictionary) -> void:

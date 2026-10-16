@@ -24,10 +24,12 @@ export class GardenEnv {
     return { observation: publicObservation(episode.id, this.width, this.height), info: { episodeId: episode.id, worldId: garden.worldId } }
   }
 
-  step(action) {
+  step(action, { movementResolution } = {}) {
     if (!this.episodeId) throw new Error('Call reset() before step()')
     if (this.done) throw new Error('Episode is done; call reset() before another step()')
-    const { outcome } = garden.act(this.episodeId, action)
+    const { outcome } = action.type === 'move' && movementResolution
+      ? { outcome: garden.moveResolved(this.episodeId, action.direction, action.distance, movementResolution) }
+      : garden.act(this.episodeId, action)
     const verifier = garden.verify(this.episodeId)
     const gainedMilestones = Math.max(0, verifier.milestones - this.previousMilestones)
     this.previousMilestones = verifier.milestones
