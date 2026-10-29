@@ -4,6 +4,30 @@ An open YG3 spatial environment server with an MCP sensorimotor interface and a 
 
 The current implementation includes the original transport and isolation spike, a causal YG3 operations world, a Gym-style training boundary, and an opt-in persistent Godot renderer connected through the same MCP tools. Read [`VISION.md`](VISION.md) for the product thesis and target architecture, [`RESEARCH.md`](RESEARCH.md) for the data opportunity, and [`AGENTS.md`](AGENTS.md) for implementation invariants.
 
+## Lab previews
+
+We are exploring how Agent Garden's observation-and-action loop can extend into homes and virtual showrooms. These square video previews show the direction of two experimental labs.
+
+### Home lab
+
+An AI looks around a furnished apartment, responds to example buyer questions about the layout and simulated evening lighting, and navigates past furniture into a hallway.
+
+<video src="https://github.com/YG3-ai/yg3-agent-garden/raw/refs/heads/main/docs/media/home-lab-square.mp4" controls width="480" height="480" preload="metadata"></video>
+
+[Watch the home lab preview](docs/media/home-lab-square.mp4) · 23 seconds
+
+### Showroom lab
+
+An AI inspects a car's exterior and cabin, identifies visible details, and controls a short simulated drive. We are exploring what this could become for interactive virtual showrooms.
+
+<video src="https://github.com/YG3-ai/yg3-agent-garden/raw/refs/heads/main/docs/media/showroom-lab-square.mp4" controls width="480" height="480" preload="metadata"></video>
+
+[Watch the showroom lab preview](docs/media/showroom-lab-square.mp4) · 16 seconds
+
+These are edited prototype recordings, not benchmark results or released Garden worlds. The car drives on an added 3D test road against a photographic panorama. Only the finished videos are shared here; the lab projects, GLBs, and raw recordings are not included.
+
+[Video provenance, asset credits, and licenses](docs/media/README.md). The showroom video is shared under **CC BY-NC-SA 4.0** for non-commercial use.
+
 ## Current implementation
 
 The repository now has two layers:
