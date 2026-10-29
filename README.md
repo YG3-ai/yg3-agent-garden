@@ -12,17 +12,13 @@ We are exploring how Agent Garden's observation-and-action loop can extend into 
 
 An AI looks around a furnished apartment, responds to example buyer questions about the layout and simulated evening lighting, and navigates past furniture into a hallway.
 
-<video src="https://github.com/YG3-ai/yg3-agent-garden/raw/refs/heads/main/docs/media/home-lab-square.mp4" controls width="480" height="480" preload="metadata"></video>
-
-[Watch the home lab preview](docs/media/home-lab-square.mp4) · 23 seconds
+**[Watch the home lab preview](docs/media/home-lab-square.mp4)** · 23 seconds
 
 ### Showroom lab
 
 An AI inspects a car's exterior and cabin, identifies visible details, and controls a short simulated drive. We are exploring what this could become for interactive virtual showrooms.
 
-<video src="https://github.com/YG3-ai/yg3-agent-garden/raw/refs/heads/main/docs/media/showroom-lab-square.mp4" controls width="480" height="480" preload="metadata"></video>
-
-[Watch the showroom lab preview](docs/media/showroom-lab-square.mp4) · 16 seconds
+**[Watch the showroom lab preview](docs/media/showroom-lab-square.mp4)** · 16 seconds
 
 These are edited prototype recordings, not benchmark results or released Garden worlds. The car drives on an added 3D test road against a photographic panorama. Only the finished videos are shared here; the lab projects, GLBs, and raw recordings are not included.
 
