@@ -6,7 +6,7 @@ The current implementation includes the original transport and isolation spike, 
 
 ## Lab previews
 
-We are exploring how Agent Garden's observation-and-action loop can extend into homes and virtual showrooms. These square video previews show the direction of two experimental labs.
+We are exploring how Agent Garden's observation-and-action loop can extend into homes, virtual showrooms and locally learned navigation. [The three lab projects and setup instructions are now public](labs/README.md).
 
 ### Home lab
 
@@ -20,9 +20,19 @@ An AI inspects a car's exterior and cabin, identifies visible details, and contr
 
 **[Watch the showroom lab preview](docs/media/showroom-lab-square.mp4)** · 16 seconds
 
-These are edited prototype recordings, not benchmark results or released Garden worlds. The car drives on an added 3D test road against a photographic panorama. Only the finished videos are shared here; the lab projects, GLBs, and raw recordings are not included.
+The home and showroom clips are edited prototype recordings, not benchmark results or integrated Garden worlds. The car drives on an added 3D test road against a photographic panorama. Their source code is in [labs/home](labs/home/) and [labs/showroom](labs/showroom/). Credited GLBs must be downloaded separately; raw recording sessions are not included.
+
+### Learned navigation lab
+
+We trained a small feed-forward network locally to control a character in Godot. It reached **34 of 50 held-out destinations**, including **15 of 28 trips between floors**, versus 12 of 50 for direct goal steering. A map-based teacher reached 50 of 50. Collection, training and learned control make no LLM/API calls.
+
+**[Watch the learned navigation test](docs/media/navigation-learning.mp4)** · 13 seconds
+
+The video shows a selected successful stair descent under the actual FFN, with no pathfinder fallback. Its trajectory matches the headless test exactly. This is a start-goal holdout in one known lobby; the policy still failed 16 routes. The sensors are synthetic ray distances plus relative goal/velocity, not RGB vision. [Code and setup](labs/navigation/) · [Full results, including failures](labs/navigation/experiments/navigation-v1-20261104/REPORT.md).
 
 [Video provenance, asset credits, and licenses](docs/media/README.md). The showroom video is shared under **CC BY-NC-SA 4.0** for non-commercial use.
+
+[All model creators, source links, licenses and modification notices](labs/THIRD_PARTY_ASSETS.md). Lab code is separate from these third-party asset licenses.
 
 ## Current implementation
 

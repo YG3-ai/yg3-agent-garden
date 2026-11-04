@@ -1,0 +1,20 @@
+{
+  "split_regions_disjoint": true,
+  "eligible_respawns": 0,
+  "export": {
+    "samples_checked": 32,
+    "max_logit_error": 3.220037282147814e-06,
+    "passed": true,
+    "purpose": "Exported JSON normalization and dense layers reproduce saved PyTorch checkpoint."
+  },
+  "reset_guard": {
+    "passed": true,
+    "reason": "fell_below_level",
+    "reset_detected": true,
+    "returned_to_spawn": true,
+    "training_guard": "Collector excludes any action whose reset_count changes; endpoint displacement is not a normal movement label."
+  },
+  "llm_calls": 0,
+  "manual_controller_preserved": true,
+  "selected_by_validation": "ffn_seed_19"
+}

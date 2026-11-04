@@ -1,0 +1,30 @@
+{
+  "id": "test-0005",
+  "selection": "First successful different-floor test episode within 25 seconds; fall back to first successful episode, then first episode. Illustrative selection, not an aggregate score.",
+  "result": {
+    "controller": "ffn",
+    "end": [
+      0.826374769210815,
+      0.00167054729536176,
+      3.11252808570862
+    ],
+    "goal": [
+      0.571088075637817,
+      0.100000001490116,
+      2.86253833770752
+    ],
+    "id": "test-0005",
+    "reason": "reached",
+    "resets": 0,
+    "seconds": 10.7166666666667,
+    "start": [
+      0.835245609283447,
+      4.60000038146973,
+      8.31001472473145
+    ],
+    "success": true,
+    "teacher_path_length": 17.4545300528407,
+    "travelled": 17.4698014068417,
+    "wall_ticks": 5
+  }
+}

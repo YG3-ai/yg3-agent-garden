@@ -31,6 +31,12 @@ The repository contains a transport and isolation spike plus the engine-neutral 
 
 This is not yet the production 3D Garden. MCP defaults to the disposable CPU raycaster but supports an opt-in persistent Godot renderer through `GARDEN_RENDERER=godot`. Server shutdown owns worker shutdown, and one failed render or physics query is retried with a fresh worker. RGB, metric camera-space depth, semantic segmentation, and camera calibration are synchronized. In Godot mode, engine collision resolves embodied movement and the code-owned transition layer records the resulting pose and collision. Dynamic objects, normals, optical flow, worker-pool supervision, and protocol-level OpenEnv/GEM integration remain target-state work.
 
+## Experimental labs
+
+`labs/home`, `labs/showroom` and `labs/navigation` are standalone prototypes, separate from the core MCP environment and its authoritative verifier. The first two contain Codex-driven visual demos; the third contains local FFN collection/training/control and a published 50-episode test with failures. Navigation explicitly receives relative destination/velocity plus ray sensors, unlike the core mapless RGB MCP contract. Do not imply these labs are integrated worlds or that the FFN sees RGB, learns joints, or generalizes to unseen buildings. Do not substitute map-based actions in learned-policy evaluation or videos. Keep training-only recovery labeling and validation/test selection boundaries intact. Preserve failed trajectories.
+
+Third-party models, extracted textures, collision/navigation caches, account data and raw recording sessions are excluded. See `labs/THIRD_PARTY_ASSETS.md` for attribution and download instructions. The showroom media/model is CC BY-NC-SA 4.0; do not apply a permissive software license to it. Home and navigation video notices are CC BY 4.0. These notices do not relicense the core software. Lab portability edits must not overwrite the original local recordings or their measured reports.
+
 ## Product principle
 
 **Useful experience first; YG3 authorship through world content.**

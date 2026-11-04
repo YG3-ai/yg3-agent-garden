@@ -1,0 +1,14 @@
+{
+  "initial_validation_score": [
+    19,
+    -3,
+    -37445
+  ],
+  "corrected_validation_score": [
+    26,
+    0,
+    -35938
+  ],
+  "selected": "corrected",
+  "rule": "Maximize reached destinations, then minimize resets, then wall-contact ticks. Validation episodes only; no test selection."
+}

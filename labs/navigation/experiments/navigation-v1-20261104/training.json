@@ -1,0 +1,33 @@
+{
+  "device": "cuda",
+  "torch": "2.7.1+cu128",
+  "train_states": 28574,
+  "validation_states": 5196,
+  "dagger": false,
+  "split": "Held-out start/goal episodes in one known lobby. Routes and positions can overlap. Test tasks unused for training/selection.",
+  "models": [
+    {
+      "seed": 7,
+      "validation_action_mse": 0.011570045724511147,
+      "epoch": 97
+    },
+    {
+      "seed": 19,
+      "validation_action_mse": 0.011616794392466545,
+      "epoch": 90
+    },
+    {
+      "seed": 31,
+      "validation_action_mse": 0.010915211401879787,
+      "epoch": 69
+    }
+  ],
+  "selected": {
+    "seed": 31,
+    "validation_action_mse": 0.010915211401879787,
+    "epoch": 69
+  },
+  "parameters": 30210,
+  "export_max_error": 2.8048204064878846e-07,
+  "seconds": 22.87162733078003
+}

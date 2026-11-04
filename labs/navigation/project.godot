@@ -1,0 +1,12 @@
+config_version=5
+[application]
+config/name="Agent Garden Lobby Lab"
+run/main_scene="res://lobby-test.tscn"
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=800
+[rendering]
+renderer/rendering_method="gl_compatibility"
+
+[input_devices]
+pointing/emulate_touch_from_mouse=false

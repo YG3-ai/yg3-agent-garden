@@ -1,0 +1,123 @@
+{
+  "godot_export_max_error": 2.422349487662956e-08,
+  "metrics": {
+    "evaluate-ffn-test": {
+      "cohorts": {
+        "all": {
+          "reached": 34,
+          "episodes": 50
+        },
+        "different_floor": {
+          "reached": 15,
+          "episodes": 28
+        },
+        "same_height": {
+          "reached": 11,
+          "episodes": 12
+        }
+      },
+      "reasons": {
+        "reached": 34,
+        "timeout": 16
+      },
+      "respawns": 0,
+      "wall_contact_ticks": 24280,
+      "successful_mean_seconds": 10.404901960784331
+    },
+    "evaluate-ffn-validation": {
+      "cohorts": {
+        "all": {
+          "reached": 26,
+          "episodes": 50
+        },
+        "different_floor": {
+          "reached": 9,
+          "episodes": 26
+        },
+        "same_height": {
+          "reached": 8,
+          "episodes": 8
+        }
+      },
+      "reasons": {
+        "reached": 26,
+        "timeout": 24
+      },
+      "respawns": 0,
+      "wall_contact_ticks": 35938,
+      "successful_mean_seconds": 9.070512820512835
+    },
+    "evaluate-goal-test": {
+      "cohorts": {
+        "all": {
+          "reached": 12,
+          "episodes": 50
+        },
+        "different_floor": {
+          "reached": 0,
+          "episodes": 28
+        },
+        "same_height": {
+          "reached": 11,
+          "episodes": 12
+        }
+      },
+      "reasons": {
+        "timeout": 38,
+        "reached": 12
+      },
+      "respawns": 0,
+      "wall_contact_ticks": 38324,
+      "successful_mean_seconds": 4.133333333333336
+    },
+    "evaluate-teacher-test": {
+      "cohorts": {
+        "all": {
+          "reached": 50,
+          "episodes": 50
+        },
+        "different_floor": {
+          "reached": 28,
+          "episodes": 28
+        },
+        "same_height": {
+          "reached": 12,
+          "episodes": 12
+        }
+      },
+      "reasons": {
+        "reached": 50
+      },
+      "respawns": 0,
+      "wall_contact_ticks": 104,
+      "successful_mean_seconds": 9.734666666666687
+    },
+    "evaluate-teacher-validation": {
+      "cohorts": {
+        "all": {
+          "reached": 50,
+          "episodes": 50
+        },
+        "different_floor": {
+          "reached": 26,
+          "episodes": 26
+        },
+        "same_height": {
+          "reached": 8,
+          "episodes": 8
+        }
+      },
+      "reasons": {
+        "reached": 50
+      },
+      "respawns": 0,
+      "wall_contact_ticks": 143,
+      "successful_mean_seconds": 10.408666666666686
+    }
+  },
+  "rendered_replay_matches_test": {
+    "id": "test-0005",
+    "max_position_error": 0.0,
+    "success": true
+  }
+}

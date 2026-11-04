@@ -1,6 +1,6 @@
 # Agent Garden lab videos
 
-This directory contains only the two finished square social edits linked from the main README. It does not contain GLBs, textures, source scenes, reference photographs, raw trajectories, account credentials, or the private lab repositories.
+This directory contains the two finished square social edits and the learned-navigation test video linked from the main README. Source code and selected navigation results are now in [labs/](../../labs/README.md). GLBs, extracted textures, reference photographs, account credentials and raw image sessions are not included.
 
 ## Home lab
 
@@ -30,4 +30,18 @@ The finished showroom video and these added audiovisual contributions are shared
 
 ## Scope of media permissions
 
-These video notices apply to the videos and their credited content. They do not change the licensing of the repository's software. No endorsement by the asset creators, Ferrari, or any dealership is implied. Original GLBs and private lab source are excluded from this public update.
+These video notices apply to the videos and their credited content. They do not change the licensing of the repository's software. No endorsement by the asset creators, Ferrari, or any dealership is implied. Original GLBs are excluded; lab source is now public.
+
+## Learned navigation test
+
+[navigation-learning.mp4](navigation-learning.mp4), 1280 x 800, H.264, silent, 60 fps, 13.12 seconds.
+
+The actual local feed-forward policy controls the shared Godot capsule/step controller on task `test-0005`. It reaches the lower-floor destination in 10.72 simulated seconds. The recording includes startup/arrival holds. The rendered trajectory exactly matches this episode's headless evaluation. The camera automatically chooses unobstructed views; it does not control the character or change the policy's sensor frame.
+
+This is an illustrative successful route, selected as the first successful different-floor test episode within 25 seconds. It is not a random sample of the policy's success rate. The policy reached 34/50 reserved destinations, including 15/28 different-floor routes, with zero respawns. All 50 outcomes and trajectories, including 16 failures, are [published with the experiment](../../labs/navigation/experiments/navigation-v1-20261104/REPORT.md). This is one known lobby, not an unseen-building result. Inputs are ray distances and relative goal/velocity; no RGB perception, LLM inference, map-based fallback or joint-level learning is involved.
+
+Environment: **Lobby**, by **local.yany** ([creator](https://sketchfab.com/local.yany), [source model](https://sketchfab.com/3d-models/lobby-9057cb241be74393b91952143c3ffe87)), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+Character: **Free 018 Kana Walk**, by **ddd** ([creator](https://sketchfab.com/endonoriko), [source model](https://sketchfab.com/3d-models/free-018-kana-walk-f465652729944a66aed790cd88fa0b0f)), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+Original GLBs are unchanged. Runtime scale, horizontal root-travel locking, animation playback, collision/step controller, lighting, cameras, HUD and learned navigation were added. The finished navigation video and added audiovisual contributions are shared under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), with both asset credits retained. [Full third-party asset notices](../../labs/THIRD_PARTY_ASSETS.md).
